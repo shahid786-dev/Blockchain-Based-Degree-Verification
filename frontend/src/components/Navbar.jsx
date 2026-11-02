@@ -1,6 +1,6 @@
 import { NavLink, Link } from "react-router-dom";
 import { useWallet } from "../context/WalletContext.jsx";
-import { shortAddress } from "../lib/blockchain.js";
+import { CHAIN_NAME, IS_LOCAL_CHAIN, shortAddress } from "../lib/blockchain.js";
 
 export default function Navbar() {
   const { address, role, connect, disconnect, connecting } = useWallet();
@@ -28,6 +28,9 @@ export default function Navbar() {
         </nav>
 
         <div className="nav-wallet">
+          <span className={`net-chip ${IS_LOCAL_CHAIN ? "net-local" : "net-test"}`} title="Blockchain network">
+            {CHAIN_NAME}
+          </span>
           {address ? (
             <>
               <span className="wallet-pill" title={address}>

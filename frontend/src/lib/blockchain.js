@@ -1,12 +1,46 @@
 import { BrowserProvider, Contract, JsonRpcProvider, isHexString } from "ethers";
 import { REGISTRY_ABI } from "../contract/abi.js";
-import deployment from "../contract/deployment.json";
+
+// deployments/<network>.json files are written by `scripts/deploy.js`.
+// Missing files are fine: the app then shows a "not deployed" notice.
+const DEPLOYMENTS = import.meta.glob("../contract/deployments/*.json", { eager: true, import: "default" });
+
+/** Which deployment to use: "localhost" (default) or "sepolia". Set VITE_NETWORK on Vercel. */
+export const NETWORK = import.meta.env.VITE_NETWORK || "localhost";
+const deployment = DEPLOYMENTS[`../contract/deployments/${NETWORK}.json`] || {};
+
+const KNOWN_CHAINS = {
+  31337: {
+    chainName: "Hardhat Local",
+    rpcUrl: "http://127.0.0.1:8545",
+    explorer: "",
+    local: true,
+  },
+  11155111: {
+    chainName: "Sepolia Test Network",
+    rpcUrl: "https://ethereum-sepolia-rpc.publicnode.com",
+    explorer: "https://sepolia.etherscan.io",
+    local: false,
+  },
+};
+
+const DEFAULT_CHAIN_ID = NETWORK === "sepolia" ? 11155111 : 31337;
+
+export const CHAIN_ID = Number(import.meta.env.VITE_CHAIN_ID || deployment.chainId || DEFAULT_CHAIN_ID);
+const CHAIN = KNOWN_CHAINS[CHAIN_ID] || { chainName: `Chain ${CHAIN_ID}`, rpcUrl: "", explorer: "", local: false };
 
 export const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || deployment.address || "";
-export const RPC_URL = import.meta.env.VITE_RPC_URL || "http://127.0.0.1:8545";
-export const CHAIN_ID = Number(import.meta.env.VITE_CHAIN_ID || deployment.chainId || 31337);
+export const RPC_URL = import.meta.env.VITE_RPC_URL || CHAIN.rpcUrl;
+export const CHAIN_NAME = CHAIN.chainName;
+export const IS_LOCAL_CHAIN = CHAIN.local;
 
 const CHAIN_ID_HEX = "0x" + CHAIN_ID.toString(16);
+
+/** Link to a block explorer page, or "" on the local chain. */
+export function explorerUrl(kind, value) {
+  if (!CHAIN.explorer || !value) return "";
+  return `${CHAIN.explorer}/${kind}/${value}`;
+}
 
 const ERROR_MESSAGES = {
   NotOwner: "Only the registry owner (regulator) can do this.",
@@ -51,15 +85,16 @@ async function ensureCorrectNetwork() {
     });
   } catch (err) {
     // 4902 = chain not added to the wallet yet
-    if (err?.code === 4902 && CHAIN_ID === 31337) {
+    if (err?.code === 4902 && RPC_URL) {
       await window.ethereum.request({
         method: "wallet_addEthereumChain",
         params: [
           {
             chainId: CHAIN_ID_HEX,
-            chainName: "Hardhat Local",
+            chainName: CHAIN_NAME,
             rpcUrls: [RPC_URL],
             nativeCurrency: { name: "Test ETH", symbol: "ETH", decimals: 18 },
+            ...(CHAIN.explorer ? { blockExplorerUrls: [CHAIN.explorer] } : {}),
           },
         ],
       });
@@ -108,12 +143,19 @@ export function normaliseCertId(value) {
 export function friendlyError(err) {
   if (!err) return "Something went wrong.";
   if (err.code === "ACTION_REJECTED" || err.code === 4001) return "You rejected the request in your wallet.";
+  if (err.code === "INSUFFICIENT_FUNDS" || /insufficient funds/i.test(err.message || "")) {
+    return IS_LOCAL_CHAIN
+      ? "This account has no test ETH for gas."
+      : `This wallet has no ${CHAIN_NAME} test ETH for gas. Get some free from a Sepolia faucet.`;
+  }
 
   const name = err.revert?.name || err.errorName;
   if (name && ERROR_MESSAGES[name]) return ERROR_MESSAGES[name];
 
   if (err.code === "NETWORK_ERROR" || /failed to fetch|ECONNREFUSED|could not detect network/i.test(err.message || "")) {
-    return "Can't reach the blockchain node. Is `npm run node` running?";
+    return IS_LOCAL_CHAIN
+      ? "Can't reach the local blockchain. Is `npm run node` running?"
+      : `Can't reach the ${CHAIN_NAME} RPC right now. Please try again in a moment.`;
   }
   if (err.code === "BAD_DATA" || err.code === "CALL_EXCEPTION") {
     return "The contract did not respond as expected. Check the contract address and that it is deployed on this network.";

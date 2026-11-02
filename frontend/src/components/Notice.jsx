@@ -1,4 +1,12 @@
-import { CHAIN_ID, CONTRACT_ADDRESS, RPC_URL, isConfigured } from "../lib/blockchain.js";
+import {
+  CHAIN_ID,
+  CHAIN_NAME,
+  CONTRACT_ADDRESS,
+  IS_LOCAL_CHAIN,
+  NETWORK,
+  explorerUrl,
+  isConfigured,
+} from "../lib/blockchain.js";
 
 export function Alert({ kind = "info", children, onClose }) {
   if (!children) return null;
@@ -19,21 +27,38 @@ export function NotConfigured() {
   if (isConfigured()) return null;
   return (
     <Alert kind="warn">
-      <strong>Contract not deployed yet.</strong> Start a local chain with <code>npm run node</code>, then run{" "}
-      <code>npm run deploy:local</code> in the project root. That writes the address into{" "}
-      <code>frontend/src/contract/deployment.json</code>.
+      <strong>Contract not deployed yet.</strong>{" "}
+      {IS_LOCAL_CHAIN ? (
+        <>
+          Start a local chain with <code>npm run node</code>, then run <code>npm run deploy:local</code> in the project
+          root.
+        </>
+      ) : (
+        <>
+          Run <code>npm run deploy:{NETWORK}</code>, then commit and push{" "}
+          <code>frontend/src/contract/deployments/{NETWORK}.json</code>.
+        </>
+      )}
     </Alert>
   );
 }
 
 export function NetworkInfo() {
+  const link = explorerUrl("address", CONTRACT_ADDRESS);
   return (
     <div className="network-info small muted">
-      Network <span className="mono">{CHAIN_ID}</span> · RPC <span className="mono">{RPC_URL}</span>
+      {CHAIN_NAME} <span className="mono">({CHAIN_ID})</span>
       {CONTRACT_ADDRESS && (
         <>
           {" "}
-          · Contract <span className="mono">{CONTRACT_ADDRESS}</span>
+          · Contract{" "}
+          {link ? (
+            <a href={link} target="_blank" rel="noreferrer" className="mono">
+              {CONTRACT_ADDRESS}
+            </a>
+          ) : (
+            <span className="mono">{CONTRACT_ADDRESS}</span>
+          )}
         </>
       )}
     </div>

@@ -12,7 +12,18 @@ const hre = require("hardhat");
  * Verify page and see a "Genuine" result (edit one byte and see it fail).
  */
 async function main() {
-  const deploymentFile = path.join(__dirname, "..", "frontend", "src", "contract", "deployment.json");
+  const deploymentFile = path.join(
+    __dirname,
+    "..",
+    "frontend",
+    "src",
+    "contract",
+    "deployments",
+    `${hre.network.name}.json`
+  );
+  if (!fs.existsSync(deploymentFile)) {
+    throw new Error(`No deployment for "${hre.network.name}". Run the deploy script for this network first.`);
+  }
   const { address } = JSON.parse(fs.readFileSync(deploymentFile, "utf8"));
   if (!address) throw new Error("No contract address found. Run `npm run deploy:local` first.");
 

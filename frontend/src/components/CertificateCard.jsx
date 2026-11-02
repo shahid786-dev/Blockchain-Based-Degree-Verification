@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { formatDate, shortAddress } from "../lib/blockchain.js";
+import { explorerUrl, formatDate, shortAddress } from "../lib/blockchain.js";
 
 export function verifyUrl(certId) {
   return `${window.location.origin}/verify/${certId}`;
@@ -108,7 +108,19 @@ export default function CertificateCard({ cert, fileMatch, showQr = true }) {
             </div>
             <div className="tech-row">
               <span className="tech-label">Issued by wallet</span>
-              <span className="mono" title={cert.issuer}>{shortAddress(cert.issuer)}</span>
+              {explorerUrl("address", cert.issuer) ? (
+                <a
+                  className="mono"
+                  title={cert.issuer}
+                  href={explorerUrl("address", cert.issuer)}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {shortAddress(cert.issuer)}
+                </a>
+              ) : (
+                <span className="mono" title={cert.issuer}>{shortAddress(cert.issuer)}</span>
+              )}
             </div>
           </div>
         </div>

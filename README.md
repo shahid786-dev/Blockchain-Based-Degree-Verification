@@ -86,7 +86,7 @@ flowchart LR
 │   └── CertificateRegistry.test.js
 ├── frontend/
 │   ├── src/
-│   │   ├── contract/              # ABI + deployment.json (address)
+│   │   ├── contract/              # ABI + deployments/<network>.json
 │   │   ├── lib/                   # blockchain helpers, hashing
 │   │   ├── context/               # wallet state
 │   │   ├── components/            # Navbar, CertificateCard, FileDrop…
@@ -170,7 +170,7 @@ If you ran `npm run seed:local`, sample files are in `sample-certificates/` for 
 
 ## 8. Configuration
 
-The frontend reads the contract address from `frontend/src/contract/deployment.json`
+The frontend reads the contract address from `frontend/src/contract/deployments/<network>.json`
 (written by the deploy script). Override with `frontend/.env`:
 
 ```
@@ -179,11 +179,36 @@ VITE_RPC_URL=http://127.0.0.1:8545
 VITE_CHAIN_ID=31337
 ```
 
-## 9. Deployment (later)
+## 9. Live deployment (Vercel + Sepolia)
 
-Not done yet. Planned path: deploy the contract to a public test network (e.g. Sepolia)
-by setting `SEPOLIA_RPC_URL` and `PRIVATE_KEY`, then host `frontend/` on Vercel with the
-`VITE_*` variables pointing at that network.
+| Part | Where it runs |
+|---|---|
+| Smart contract | **Sepolia**, Ethereum's public test network (free test ETH, no real money) |
+| Frontend | **Vercel**, auto-deploys every push to `main` (root directory `frontend`, env `VITE_NETWORK=sepolia`) |
+
+### Deploy the contract to Sepolia (one time)
+
+1. In MetaMask, create a **new account** used only for this project, and switch to the *Sepolia* network
+   (enable *Show test networks* in MetaMask settings if it's hidden).
+2. Get free Sepolia test ETH for that account from a faucet (e.g. Google Cloud Web3 faucet). About 0.05 ETH is plenty.
+3. Store the account's private key in Hardhat's local config (it is **not** saved in the repo):
+   ```bash
+   npx hardhat vars set SEPOLIA_PRIVATE_KEY
+   # optional, a free public RPC is used by default:
+   # npx hardhat vars set SEPOLIA_RPC_URL
+   ```
+4. Deploy and push the address file:
+   ```bash
+   npm run deploy:sepolia
+   git add frontend/src/contract/deployments/sepolia.json
+   git commit -m "Deploy registry to Sepolia"
+   git push
+   ```
+5. Vercel rebuilds automatically. Open the live site, connect the same MetaMask account
+   (it is the **owner**), and on **Admin** approve a university wallet (your own account works for a demo).
+
+`frontend/src/contract/deployments/localhost.json` is git-ignored, so local testing never
+overwrites the live configuration.
 
 ## 10. Limitations & future work
 

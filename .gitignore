@@ -19,3 +19,7 @@ sample-certificates/
 
 .DS_Store
 *.log
+
+# Local-chain deployment changes every time `npm run node` restarts; don't commit it.
+# (deployments/sepolia.json SHOULD be committed so Vercel can use it.)
+frontend/src/contract/deployments/localhost.json
