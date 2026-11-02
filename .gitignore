@@ -1,0 +1,21 @@
+node_modules/
+.env
+.env.*
+!.env.example
+
+# Hardhat
+artifacts/
+cache/
+typechain-types/
+coverage/
+coverage.json
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Generated sample files
+sample-certificates/
+
+.DS_Store
+*.log

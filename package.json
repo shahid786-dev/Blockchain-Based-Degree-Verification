@@ -1,0 +1,28 @@
+{
+  "name": "blockchain-based-degree-verification",
+  "version": "1.0.0",
+  "description": "Tamper-proof university degree issuance and verification on a blockchain (record-keeping only, no cryptocurrency).",
+  "private": true,
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "node": "hardhat node",
+    "deploy:local": "hardhat run scripts/deploy.js --network localhost",
+    "seed:local": "hardhat run scripts/seed.js --network localhost",
+    "frontend:install": "npm install --prefix frontend",
+    "frontend:dev": "npm run dev --prefix frontend",
+    "frontend:build": "npm run build --prefix frontend"
+  },
+  "keywords": [
+    "blockchain",
+    "solidity",
+    "hardhat",
+    "degree-verification",
+    "certificate"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.0"
+  }
+}
