@@ -1,0 +1,18 @@
+flowchart TD
+  START(["Verifier opens /verify"]) --> MODE{"How?"}
+  MODE -- "Certificate ID / QR scan" --> ID["verifyCertificate(certId)"]
+  MODE -- "Upload degree file" --> H["Browser computes SHA-256 of file"]
+  H --> FIND["findByDocumentHash(hash)"]
+  FIND --> F0{"Match found?"}
+  F0 -- "No" --> NV["NOT VERIFIED<br/>file is fake or was edited"]
+  F0 -- "Yes" --> ID
+  ID --> EX{"Record exists?"}
+  EX -- "No" --> NF["NOT VERIFIED<br/>no such certificate"]
+  EX -- "Yes" --> RV{"Revoked?"}
+  RV -- "Yes" --> RVK["REVOKED<br/>shows reason"]
+  RV -- "No" --> OK["GENUINE AND VALID<br/>shows details and QR"]
+  OK --> OPT["Optional: upload candidate's PDF<br/>and compare hash with record"]
+  classDef good fill:#e6f4ec,stroke:#1f7a4d,color:#1f7a4d
+  classDef bad fill:#fbeae7,stroke:#b23a2e,color:#b23a2e
+  class OK good
+  class NV,NF,RVK bad

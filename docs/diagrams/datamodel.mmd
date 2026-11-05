@@ -1,0 +1,41 @@
+classDiagram
+  direction LR
+  class CertificateRegistry {
+    +address owner
+    +uint256 totalCertificates
+    -mapping universities : address to University
+    -address[] universityList
+    -mapping certificates : bytes32 to Certificate
+    -mapping hashToCertId : bytes32 to bytes32
+    -mapping issuedBy : address to bytes32[]
+    +addUniversity(address, name)
+    +setUniversityStatus(address, active)
+    +transferOwnership(newOwner)
+    +issueCertificate(...) bytes32
+    +revokeCertificate(certId, reason)
+    +verifyCertificate(certId) view
+    +findByDocumentHash(hash) view
+    +getUniversities() view
+    +getCertificatesByUniversity(addr) view
+  }
+  class University {
+    string name
+    bool active
+    bool registered
+  }
+  class Certificate {
+    bytes32 certId
+    string studentName
+    string rollNumber
+    string degreeTitle
+    string cgpa
+    uint16 graduationYear
+    bytes32 documentHash
+    address issuer
+    uint256 issuedAt
+    bool revoked
+    string revokeReason
+  }
+  CertificateRegistry "1" o-- "*" University : approves
+  CertificateRegistry "1" o-- "*" Certificate : stores
+  University "1" --> "*" Certificate : issues

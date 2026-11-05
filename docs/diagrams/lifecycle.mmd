@@ -1,0 +1,10 @@
+stateDiagram-v2
+  direction LR
+  [*] --> Valid: issueCertificate()<br/>by active university
+  Valid --> Revoked: revokeCertificate(reason)<br/>only by issuer
+  Revoked --> [*]
+  note right of Valid
+    Details cannot be edited.
+    A correction means revoke
+    and issue a new certificate.
+  end note

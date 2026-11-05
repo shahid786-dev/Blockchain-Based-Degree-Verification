@@ -1,0 +1,19 @@
+sequenceDiagram
+  autonumber
+  actor Uni as University staff
+  participant UI as University portal (browser)
+  participant MM as MetaMask
+  participant SC as CertificateRegistry (Sepolia)
+  Uni->>UI: Enter student name, roll no, degree, CGPA, year
+  Uni->>UI: Attach degree PDF
+  UI->>UI: SHA-256(file) computed locally
+  Note over UI: The PDF never leaves the computer.<br/>Only the 32-byte hash is used.
+  UI->>MM: issueCertificate(details, documentHash)
+  MM->>Uni: Ask to confirm transaction
+  Uni->>MM: Confirm
+  MM->>SC: Signed transaction
+  SC->>SC: Check active university,<br/>non-empty fields, hash not used before
+  SC-->>UI: CertificateIssued(certId, issuer, documentHash)
+  UI->>SC: verifyCertificate(certId)
+  SC-->>UI: Stored record
+  UI-->>Uni: Certificate card with ID and QR code

@@ -1,0 +1,32 @@
+flowchart LR
+  subgraph U["Users"]
+    REG(["Regulator / HEC<br/>(owner wallet)"])
+    UNI(["University<br/>(approved wallet)"])
+    VER(["Employer / Verifier<br/>(no wallet needed)"])
+  end
+  subgraph FE["Frontend: React + Vite, hosted on Vercel"]
+    ADM["Admin console"]
+    UNP["University portal"]
+    VP["Verify page"]
+    HASH["SHA-256 hashing<br/>(Web Crypto API, in browser)"]
+    QR["QR code generator"]
+    ETH["ethers.js v6"]
+  end
+  MM["MetaMask<br/>(signs transactions)"]
+  RPC["Public Sepolia RPC<br/>(read-only calls)"]
+  subgraph BC["Ethereum Sepolia test network"]
+    SC[("CertificateRegistry.sol<br/>smart contract")]
+  end
+  REG --> ADM
+  UNI --> UNP
+  VER --> VP
+  UNP --> HASH
+  VP --> HASH
+  UNP --> QR
+  ADM --> ETH
+  UNP --> ETH
+  VP --> ETH
+  ETH -- "write: signed tx" --> MM
+  MM -- "addUniversity / issue / revoke" --> SC
+  ETH -- "read: eth_call (free)" --> RPC
+  RPC --> SC

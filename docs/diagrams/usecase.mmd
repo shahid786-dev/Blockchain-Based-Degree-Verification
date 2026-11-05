@@ -1,0 +1,20 @@
+flowchart LR
+  R(["Regulator<br/>(Owner)"])
+  U(["University"])
+  V(["Verifier<br/>(anyone)"])
+  S(["Student"])
+  subgraph SYS["DegreeChain"]
+    A1(["Approve university"])
+    A2(["Suspend / re-activate university"])
+    A3(["Transfer ownership"])
+    B1(["Issue certificate"])
+    B2(["Revoke certificate"])
+    B3(["View issued certificates"])
+    C1(["Verify by certificate ID / QR"])
+    C2(["Verify by uploading file"])
+    C3(["View certificate details"])
+  end
+  R --- A1 & A2 & A3
+  U --- B1 & B2 & B3
+  S --- C3
+  V --- C1 & C2 & C3

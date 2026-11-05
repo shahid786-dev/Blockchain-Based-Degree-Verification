@@ -14,6 +14,12 @@ cryptocurrency and no payment logic.
 
 ---
 
+## Documentation
+
+- **CEP report (PDF):** [`docs/DegreeChain_CEP_Report.pdf`](docs/DegreeChain_CEP_Report.pdf)
+- Diagrams (Mermaid sources + PNG): `docs/diagrams/`
+- Screenshots: `docs/screenshots/`
+
 ## 1. Problem
 
 - Fake degrees are a recurring problem in hiring, professional licensing and public office.

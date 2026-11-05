@@ -1,0 +1,7 @@
+flowchart LR
+  DEV["Developer"] -- "git push" --> GH["GitHub repository<br/>shahid786-dev/Blockchain-Based-Degree-Verification"]
+  GH -- "webhook: auto build" --> VC["Vercel<br/>build: vite (root: frontend)<br/>env: VITE_NETWORK=sepolia"]
+  VC --> SITE["degreechain.vercel.app"]
+  OWN["Owner wallet<br/>(MetaMask)"] -- "one-time deploy<br/>from /deploy page" --> SC[("CertificateRegistry<br/>0x59d5...71cF<br/>Sepolia")]
+  SITE -- "reads + writes" --> SC
+  SC -. "address saved in<br/>deployments/sepolia.json" .-> GH
