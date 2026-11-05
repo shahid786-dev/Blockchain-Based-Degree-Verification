@@ -6,6 +6,12 @@ A tamper-proof system for issuing and verifying university degrees, built for th
 The blockchain is used **only as a digital record store**. There is no token, no
 cryptocurrency and no payment logic.
 
+| | |
+|---|---|
+| **Live app** | https://degreechain.vercel.app |
+| **Smart contract (Sepolia)** | [`0x59d52b03ff5bFB75b007F8E55F0d621b3a5F71cF`](https://sepolia.etherscan.io/address/0x59d52b03ff5bFB75b007F8E55F0d621b3a5F71cF) |
+| **Network** | Ethereum Sepolia test network (chain ID 11155111) |
+
 ---
 
 ## 1. Problem
@@ -86,11 +92,11 @@ flowchart LR
 │   └── CertificateRegistry.test.js
 ├── frontend/
 │   ├── src/
-│   │   ├── contract/              # ABI + deployments/<network>.json
+│   │   ├── contract/              # ABI, bytecode, deployments/<network>.json
 │   │   ├── lib/                   # blockchain helpers, hashing
 │   │   ├── context/               # wallet state
 │   │   ├── components/            # Navbar, CertificateCard, FileDrop…
-│   │   └── pages/                 # Home, Verify, University, Admin
+│   │   └── pages/                 # Home, Verify, University, Admin, Deploy
 │   └── vercel.json                # SPA routing for later deployment
 └── hardhat.config.js
 ```
@@ -186,26 +192,49 @@ VITE_CHAIN_ID=31337
 | Smart contract | **Sepolia**, Ethereum's public test network (free test ETH, no real money) |
 | Frontend | **Vercel**, auto-deploys every push to `main` (root directory `frontend`, env `VITE_NETWORK=sepolia`) |
 
-### Deploy the contract to Sepolia (one time)
+**Current deployment:** contract `0x59d52b03ff5bFB75b007F8E55F0d621b3a5F71cF`, owner
+`0x262B481a5f847E7c73536c530bA7538F5639D2ac`, recorded in
+`frontend/src/contract/deployments/sepolia.json`.
+
+### Before either option
 
 1. In MetaMask, create a **new account** used only for this project, and switch to the *Sepolia* network
    (enable *Show test networks* in MetaMask settings if it's hidden).
 2. Get free Sepolia test ETH for that account from a faucet (e.g. Google Cloud Web3 faucet). About 0.05 ETH is plenty.
-3. Store the account's private key in Hardhat's local config (it is **not** saved in the repo):
+
+### Option A: deploy from the browser (no private key, no terminal)
+
+This is how the current contract was deployed.
+
+1. While `deployments/sepolia.json` does not exist, the live site shows a *Contract not deployed* notice.
+   Open **`/deploy`** on the site.
+2. Connect the project MetaMask account and click **Deploy contract**, then confirm in MetaMask.
+   The page uses the compiled bytecode in `frontend/src/contract/bytecode.js` (solc 0.8.24, optimizer 200 runs).
+3. Copy the details it shows into `frontend/src/contract/deployments/sepolia.json`, commit and push.
+
+If you change the contract, regenerate the bytecode:
+`solc --optimize --optimize-runs 200 --evm-version paris --combined-json bin contracts/CertificateRegistry.sol`.
+
+### Option B: deploy with Hardhat
+
+1. Store the account's private key in Hardhat's local config (it is **not** saved in the repo):
    ```bash
    npx hardhat vars set SEPOLIA_PRIVATE_KEY
    # optional, a free public RPC is used by default:
    # npx hardhat vars set SEPOLIA_RPC_URL
    ```
-4. Deploy and push the address file:
+2. Deploy and push the address file:
    ```bash
    npm run deploy:sepolia
    git add frontend/src/contract/deployments/sepolia.json
    git commit -m "Deploy registry to Sepolia"
    git push
    ```
-5. Vercel rebuilds automatically. Open the live site, connect the same MetaMask account
-   (it is the **owner**), and on **Admin** approve a university wallet (your own account works for a demo).
+
+### After deploying
+
+Vercel rebuilds on push. Open the live site, connect the same MetaMask account
+(it is the **owner**), and on **Admin** approve a university wallet (your own account works for a demo).
 
 `frontend/src/contract/deployments/localhost.json` is git-ignored, so local testing never
 overwrites the live configuration.
