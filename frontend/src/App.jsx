@@ -3,6 +3,7 @@ import Navbar from "./components/Navbar.jsx";
 import { Alert } from "./components/Notice.jsx";
 import { useWallet } from "./context/WalletContext.jsx";
 import Admin from "./pages/Admin.jsx";
+import Deploy from "./pages/Deploy.jsx";
 import Home from "./pages/Home.jsx";
 import University from "./pages/University.jsx";
 import Verify from "./pages/Verify.jsx";
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/verify/:certId" element={<Verify />} />
           <Route path="/university" element={<University />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/deploy" element={<Deploy />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

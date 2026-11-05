@@ -839,6 +839,17 @@ code {
   text-align: center;
 }
 
+.code-block {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  background: #10201f;
+  color: #e6efe9;
+  padding: 14px 16px;
+  border-radius: 10px;
+  overflow-x: auto;
+  white-space: pre;
+}
+
 /* ---------- Responsive ---------- */
 
 @media (max-width: 860px) {

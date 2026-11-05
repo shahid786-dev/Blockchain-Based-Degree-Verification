@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import {
   CHAIN_ID,
   CHAIN_NAME,
@@ -35,8 +36,8 @@ export function NotConfigured() {
         </>
       ) : (
         <>
-          Run <code>npm run deploy:{NETWORK}</code>, then commit and push{" "}
-          <code>frontend/src/contract/deployments/{NETWORK}.json</code>.
+          <Link to="/deploy">Deploy it from your browser</Link> with MetaMask (or run{" "}
+          <code>npm run deploy:{NETWORK}</code>).
         </>
       )}
     </Alert>
